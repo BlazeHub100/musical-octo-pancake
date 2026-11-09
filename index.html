@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlazeHub Script Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Kanit / Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Kanit', 'sans-serif'],
+                    },
+                    colors: {
+                        darkbg: '#0b0c16',
+                        cardbg: '#121324',
+                        accent: '#8b5cf6',
+                        accentGlow: '#a855f7',
+                        cyanGlow: '#06b6d4'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #080911;
+            color: #ffffff;
+            font-family: 'Kanit', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Neon Glow Effects */
+        .glow-card {
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.15), inset 0 0 15px rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .avatar-glow {
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.6);
+            border: 3px solid #06b6d4;
+        }
+
+        .btn-glow {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-glow:hover {
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .btn-glow:active {
+            transform: translateY(0);
+        }
+
+        /* Toast Popup Animation */
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+        .toast-animate {
+            animation: fadeInOut 2.5s forwards;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-purple-600 text-white px-6 py-3 rounded-xl shadow-2xl z-50 hidden flex items-center space-x-3 border border-purple-400">
+        <i id="toast-icon" class="fas fa-check-circle text-xl"></i>
+        <span id="toast-message" class="font-medium text-sm sm:text-base">คัดลอกสคริปต์สำเร็จ!</span>
+    </div>
+
+    <!-- Header Area -->
+    <header class="w-full p-4 sm:p-6 flex items-center justify-between z-10">
+        <!-- Logo Secret Trigger (แอบกด 10 ครั้งเพื่อเปิด Admin) -->
+        <div id="logo-btn" class="flex items-center space-x-3 cursor-pointer select-none group">
+            <div class="w-10 h-10 rounded-xl bg-purple-900/60 border border-purple-500/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-lg shadow-purple-950">
+                <i class="fas fa-fire text-purple-400 text-xl group-hover:text-purple-300"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-none tracking-wide text-gray-100 group-hover:text-purple-300 transition-colors" id="header-title">BlazeHub</h1>
+            </div>
+        </div>
+
+        <!-- Connection Status Badge -->
+        <div class="flex items-center space-x-2 bg-gray-900/80 px-3 py-1.5 rounded-full border border-gray-800 text-xs text-gray-400">
+            <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            <span id="status-text">กำลังเชื่อมต่อคลาวด์...</span>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-6 z-10">
+        <div class="w-full max-w-md bg-cardbg/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 glow-card relative overflow-hidden my-auto">
+            
+            <!-- Top Avatar Section (Circle Cyan Avatar) -->
+            <div class="flex flex-col items-center">
+                <div class="relative group">
+                    <!-- Circular Avatar Image with Cyan Glow -->
+                    <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full avatar-glow overflow-hidden bg-gray-950 flex items-center justify-center relative">
+                        <img id="avatar-img" src="https://placehold.co/200x200/090d16/06b6d4?text=BLAZE+HUB" alt="Avatar" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Verified Badge -->
+                    <div class="absolute bottom-1 right-1 bg-purple-600 text-white w-7 h-7 rounded-full flex items-center justify-center border-2 border-gray-950 shadow-md">
+                        <i class="fas fa-check text-xs"></i>
+                    </div>
+                </div>
+
+                <!-- Tag Badge -->
+                <div class="mt-4 inline-flex items-center space-x-2 bg-purple-950/60 border border-purple-500/40 px-4 py-1 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                    <span id="display-badge" class="text-xs font-semibold text-purple-300 tracking-wider">BlazeHub</span>
+                </div>
+
+                <!-- Title & Description -->
+                <h2 id="display-title" class="text-2xl sm:text-3xl font-bold mt-4 text-center text-white tracking-wide">
+                    ของค่าย BlazeHub
+                </h2>
+                <p id="display-desc" class="text-gray-400 text-sm sm:text-base text-center mt-2 leading-relaxed px-2">
+                    สคริปต์ 3008 ใช้ คัดลอกไปใส่ได้เลยผมสร้างเองไม่มีคีย์
+                </p>
+            </div>
+
+            <!-- Script Display Box -->
+            <div class="mt-6 bg-gray-950/90 rounded-2xl p-4 border border-purple-900/40 relative group">
+                <div class="flex items-center justify-between text-xs text-purple-400 font-semibold mb-2">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                        <span>SCRIPT</span>
+                    </div>
+                    <div class="flex items-center space-x-1 text-gray-500 hover:text-purple-300 cursor-pointer transition-colors" id="btn-copy-mini">
+                        <i class="far fa-copy"></i>
+                        <span>คัดลอกผ่าน</span>
+                    </div>
+                </div>
+
+                <!-- Code Container -->
+                <div class="bg-gray-900/80 rounded-xl p-3 border border-gray-800 text-purple-200 font-mono text-xs sm:text-sm break-all leading-relaxed max-h-36 overflow-y-auto" id="display-script">
+                    loadstring(game:HttpGet("https://raw.githubusercontent.com/BlazeHub100/stunning-meme/refs/heads/main/script%20v7.lua"))()
+                </div>
+            </div>
+
+            <!-- Action Button: Copy Script -->
+            <button id="btn-copy-main" class="w-full mt-6 py-3.5 px-6 rounded-2xl font-bold text-white btn-glow flex items-center justify-center space-x-3 text-base sm:text-lg">
+                <i class="far fa-copy text-xl"></i>
+                <span>คัดลอกสคริปต์</span>
+            </button>
+
+            <!-- Card Footer Info -->
+            <div class="mt-6 pt-4 border-t border-purple-900/30 flex items-center justify-center text-center">
+                <p class="text-[11px] text-gray-500 tracking-widest uppercase flex items-center space-x-2">
+                    <span>♦</span>
+                    <span id="footer-text">BLAZEHUB • CLOUD STORAGE ACTIVE</span>
+                    <span>♦</span>
+                </p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal: Admin Edit Mode (เปิดเมื่อกดครบ 10 ครั้ง) -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-cardbg border border-purple-500/40 rounded-3xl w-full max-w-lg p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex justify-between items-center pb-4 mb-4 border-b border-purple-900/40">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-sliders-h text-purple-400 text-xl"></i>
+                    <h3 class="text-xl font-bold text-white">แก้ไขข้อมูลเว็บไซต์ (Admin)</h3>
+                </div>
+                <button id="close-admin-btn" class="text-gray-400 hover:text-white p-2 rounded-lg">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-purple-300 mb-6 bg-purple-950/50 p-3 rounded-xl border border-purple-800/40">
+                <i class="fas fa-info-circle mr-1"></i> เมื่อกดบันทึก ข้อมูลทั้งหมดจะถูกอัปเดตไปยังคลาวด์ และผู้ใช้งานคนอื่นจะเห็นความเปลี่ยนแปลงทันที!
+            </p>
+
+            <form id="admin-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">ชื่อค่าย / หัวข้อหลัก</label>
+                    <input type="text" id="input-title" class="w-full bg-gray-950 border border-purple-900/60 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">แท็กตัวเลือก (Badge)</label>
+                    <input type="text" id="input-badge" class="w-full bg-gray-950 border border-purple-900/60 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">คำอธิบายรายละเอียด</label>
+                    <textarea id="input-desc" rows="3" class="w-full bg-gray-950 border border-purple-900/60 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-purple-500" required></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">สคริปต์ (Script Code / URL)</label>
+                    <textarea id="input-script" rows="4" class="w-full bg-gray-950 border border-purple-900/60 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-purple-500 font-mono text-xs" required></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">รูปโปรไฟล์ (URL รูปภาพวงกลม)</label>
+                    <input type="url" id="input-avatar" class="w-full bg-gray-950 border border-purple-900/60 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-purple-500" required>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-indigo-400 mb-1">
+                        <i class="fab font-bold fa-discord mr-1"></i> Discord Webhook URL (สำหรับแจ้งเตือนเมื่อมีคนก็อปสคริปต์)
+                    </label>
+                    <input type="url" id="input-webhook" placeholder="https://discord.com/api/webhooks/..." class="w-full bg-gray-950 border border-indigo-900/60 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 font-mono text-xs">
+                    <p class="text-[10px] text-gray-400 mt-1">* หากใส่ Webhook ไว้ ระบบจะส่งการแจ้งเตือนเข้าไปในห้อง Discord ที่ตั้งค่าไว้ทันทีเมื่อมีผู้กดปุ่มคัดลอกสคริปต์</p>
+                </div>
+
+                <div class="pt-4 flex space-x-3">
+                    <button type="button" id="btn-cancel" class="w-1/3 py-3 rounded-xl bg-gray-800 text-gray-300 font-semibold hover:bg-gray-700 transition-colors">ยกเลิก</button>
+                    <button type="submit" id="btn-save" class="w-2/3 py-3 rounded-xl btn-glow font-bold text-white flex items-center justify-center space-x-2">
+                        <i class="fas fa-save"></i>
+                        <span>บันทึกการเปลี่ยนแปลง</span>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Firebase Real-time Cloud Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration Guard
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'blaze-hub-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "demo-api-key",
+                authDomain: "demo-app.firebaseapp.com",
+                projectId: "demo-app",
+                storageBucket: "demo-app.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:abcdef"
+            };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Firestore Path for shared public data
+        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'siteConfig', 'main');
+
+        // State & DOM Elements
+        let clickCount = 0;
+        let currentScriptText = "";
+        let discordWebhookUrl = "";
+
+        const logoBtn = document.getElementById('logo-btn');
+        const adminModal = document.getElementById('admin-modal');
+        const closeAdminBtn = document.getElementById('close-admin-btn');
+        const btnCancel = document.getElementById('btn-cancel');
+        const adminForm = document.getElementById('admin-form');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+
+        // Display Elements
+        const displayTitle = document.getElementById('display-title');
+        const displayBadge = document.getElementById('display-badge');
+        const displayDesc = document.getElementById('display-desc');
+        const displayScript = document.getElementById('display-script');
+        const avatarImg = document.getElementById('avatar-img');
+
+        // Form Inputs
+        const inputTitle = document.getElementById('input-title');
+        const inputBadge = document.getElementById('input-badge');
+        const inputDesc = document.getElementById('input-desc');
+        const inputScript = document.getElementById('input-script');
+        const inputAvatar = document.getElementById('input-avatar');
+        const inputWebhook = document.getElementById('input-webhook');
+
+        // Toast Helper
+        function showToast(message, iconClass = "fa-check-circle") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            toastIcon.className = `fas ${iconClass} text-xl`;
+            toast.classList.remove('hidden');
+            toast.classList.add('toast-animate');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('toast-animate');
+            }, 2500);
+        }
+
+        // Send Discord Webhook Notification when user copies script
+        async function sendDiscordNotification() {
+            if (!discordWebhookUrl || !discordWebhookUrl.startsWith('http')) return;
+
+            const timeString = new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' });
+            
+            const payload = {
+                username: "BlazeHub Alert System",
+                avatar_url: "https://placehold.co/200x200/090d16/06b6d4?text=BLAZE",
+                embeds: [
+                    {
+                        title: "📋 มีคนคัดลอกสคริปต์บนเว็บไซต์!",
+                        color: 11027447, // Purple Color
+                        fields: [
+                            {
+                                name: "🏷️ ค่าย / ชื่อสคริปต์",
+                                value: displayTitle.textContent || "BlazeHub",
+                                inline: true
+                            },
+                            {
+                                name: "⏰ เวลาที่คัดลอก",
+                                value: timeString,
+                                inline: true
+                            },
+                            {
+                                name: "📜 สคริปต์ที่ถูกคัดลอก",
+                                value: "```lua\n" + (currentScriptText.length > 250 ? currentScriptText.substring(0, 250) + "..." : currentScriptText) + "\n```"
+                            }
+                        ],
+                        footer: {
+                            text: "BlazeHub Real-time Script Tracking"
+                        },
+                        timestamp: new Date().toISOString()
+                    }
+                ]
+            };
+
+            try {
+                await fetch(discordWebhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                console.error("Failed to send Discord notification:", err);
+            }
+        }
+
+        // Copy Text Helper (Supports mobile iframe fallback)
+        function copyToClipboard(text) {
+            if (!text) return;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast('คัดลอกสคริปต์เรียบร้อยแล้ว!');
+                sendDiscordNotification(); // Trigger Discord Webhook Notification
+            } catch (err) {
+                showToast('ไม่สามารถคัดลอกได้อัตโนมัติ', 'fa-exclamation-triangle');
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+
+        // Copy Listeners
+        document.getElementById('btn-copy-main').addEventListener('click', () => copyToClipboard(currentScriptText));
+        document.getElementById('btn-copy-mini').addEventListener('click', () => copyToClipboard(currentScriptText));
+
+        // Secret Admin Trigger (10 Clicks on Logo)
+        logoBtn.addEventListener('click', () => {
+            clickCount++;
+            if (clickCount >= 10) {
+                clickCount = 0;
+                openAdminModal();
+            }
+        });
+
+        function openAdminModal() {
+            adminModal.classList.remove('hidden');
+        }
+
+        function closeAdminModal() {
+            adminModal.classList.add('hidden');
+        }
+
+        closeAdminBtn.addEventListener('click', closeAdminModal);
+        btnCancel.addEventListener('click', closeAdminModal);
+
+        // Authenticate User First (Mandatory for Firestore Operations)
+        async function authenticateUser() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.warn("Auth fallback to anonymous:", err);
+                try {
+                    await signInAnonymously(auth);
+                } catch (e) {
+                    console.error("Auth Failed:", e);
+                }
+            }
+        }
+
+        // Listen for Realtime Cloud Updates
+        function subscribeToData() {
+            onSnapshot(docRef, (docSnap) => {
+                statusDot.className = "w-2 h-2 rounded-full bg-emerald-500";
+                statusText.textContent = "เชื่อมต่อเรียลไทม์แล้ว";
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // Update UI elements instantly for everyone
+                    displayTitle.textContent = data.title || 'ของค่าย BlazeHub';
+                    displayBadge.textContent = data.badge || 'BlazeHub';
+                    displayDesc.textContent = data.desc || 'สคริปต์ 3008 ใช้ คัดลอกไปใส่ได้เลยผมสร้างเองไม่มีคีย์';
+                    
+                    currentScriptText = data.script || 'loadstring(game:HttpGet("https://raw.githubusercontent.com/BlazeHub100/stunning-meme/refs/heads/main/script%20v7.lua"))()';
+                    displayScript.textContent = currentScriptText;
+
+                    if (data.avatar) {
+                        avatarImg.src = data.avatar;
+                    }
+
+                    discordWebhookUrl = data.webhookUrl || '';
+
+                    // Pre-fill Form
+                    inputTitle.value = data.title || '';
+                    inputBadge.value = data.badge || '';
+                    inputDesc.value = data.desc || '';
+                    inputScript.value = currentScriptText;
+                    inputAvatar.value = data.avatar || '';
+                    inputWebhook.value = discordWebhookUrl;
+                } else {
+                    // Initialize default values if collection doesn't exist yet
+                    const initialData = {
+                        title: 'ของค่าย BlazeHub',
+                        badge: 'BlazeHub',
+                        desc: 'สคริปต์ 3008 ใช้ คัดลอกไปใส่ได้เลยผมสร้างเองไม่มีคีย์',
+                        script: 'loadstring(game:HttpGet("https://raw.githubusercontent.com/BlazeHub100/stunning-meme/refs/heads/main/script%20v7.lua"))()',
+                        avatar: 'https://placehold.co/200x200/090d16/06b6d4?text=BLAZE+HUB',
+                        webhookUrl: ''
+                    };
+                    setDoc(docRef, initialData);
+                }
+            }, (error) => {
+                console.error("Realtime Error:", error);
+                statusDot.className = "w-2 h-2 rounded-full bg-red-500";
+                statusText.textContent = "การเชื่อมต่อขัดข้อง";
+            });
+        }
+
+        // Handle Admin Form Submit (Save Data to Cloud)
+        adminForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btnSave = document.getElementById('btn-save');
+            btnSave.disabled = true;
+            btnSave.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>กำลังบันทึก...</span>`;
+
+            const updatedData = {
+                title: inputTitle.value.trim(),
+                badge: inputBadge.value.trim(),
+                desc: inputDesc.value.trim(),
+                script: inputScript.value.trim(),
+                avatar: inputAvatar.value.trim() || 'https://placehold.co/200x200/090d16/06b6d4?text=BLAZE+HUB',
+                webhookUrl: inputWebhook.value.trim(),
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                await setDoc(docRef, updatedData, { merge: true });
+                closeAdminModal();
+                showToast('บันทึกและอัปเดตออนไลน์สำเร็จ!');
+            } catch (err) {
+                console.error("Save Error:", err);
+                showToast('เกิดข้อผิดพลาดในการบันทึก', 'fa-exclamation-circle');
+            } finally {
+                btnSave.disabled = false;
+                btnSave.innerHTML = `<i class="fas fa-save"></i> <span>บันทึกการเปลี่ยนแปลง</span>`;
+            }
+        });
+
+        // App Initialization
+        window.onload = async () => {
+            await authenticateUser();
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    subscribeToData();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
